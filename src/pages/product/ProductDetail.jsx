@@ -105,7 +105,7 @@ export default function ProductDetail() {
             </div>
 
             <div className="py-6 border-y-2 border-rossa-gray mb-6">
-              <span className="font-display font-black text-rossa-blue" style={{fontWeight:900, fontSize:'2.8rem'}}>
+              <span className="font-display font-black text-rossa-dark" style={{fontWeight:900, fontSize:'2.8rem'}}>
                 ${product.price?.toLocaleString('es-AR')}
               </span>
               <div className="mt-2">
