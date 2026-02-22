@@ -25,6 +25,9 @@ export default function ProductDetail() {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  const prevImg = () => setSelectedImg(i => (i - 1 + images.length) % images.length);
+  const nextImg = () => setSelectedImg(i => (i + 1) % images.length);
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-10 h-10 border-4 border-rossa-blue border-t-transparent rounded-full animate-spin" />
@@ -42,36 +45,78 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-20">
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs mb-8 font-display uppercase tracking-wider" style={{fontWeight:600}}>
-          <Link to="/" className="text-gray-400 hover:text-rossa-blue transition-colors">Inicio</Link>
-          <span className="text-gray-300">›</span>
-          <Link to="/catalogo" className="text-gray-400 hover:text-rossa-blue transition-colors">Catálogo</Link>
+          <Link to="/catalogo" className="text-gray-400 hover:text-rossa-blue transition-colors">← Catálogo</Link>
           <span className="text-gray-300">›</span>
           <span className="text-rossa-blue">{product.name}</span>
         </nav>
 
         <div className="grid md:grid-cols-2 gap-12">
 
-          {/* ── Imágenes ── */}
+          {/* ── Carrusel de imágenes ── */}
           <div>
-            <div className="aspect-square bg-rossa-light border-2 border-rossa-gray rounded-2xl overflow-hidden mb-3">
+            {/* Imagen principal con controles */}
+            <div className="relative aspect-square bg-rossa-light border-2 border-rossa-gray rounded-2xl overflow-hidden group">
               {images[selectedImg]?.url ? (
-                <img src={images[selectedImg].url} alt={product.name} className="w-full h-full object-cover" />
+                <img
+                  key={selectedImg}
+                  src={images[selectedImg].url}
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-8xl opacity-10">🔧</div>
               )}
+
+              {/* Flechas — solo si hay más de 1 imagen */}
+              {images.length > 1 && (
+                <>
+                  <button onClick={prevImg}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 rounded-full shadow-md
+                               flex items-center justify-center text-rossa-blue hover:bg-rossa-blue hover:text-white
+                               transition-all duration-200 opacity-0 group-hover:opacity-100">
+                    ‹
+                  </button>
+                  <button onClick={nextImg}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 rounded-full shadow-md
+                               flex items-center justify-center text-rossa-blue hover:bg-rossa-blue hover:text-white
+                               transition-all duration-200 opacity-0 group-hover:opacity-100">
+                    ›
+                  </button>
+
+                  {/* Dots */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {images.map((_, i) => (
+                      <button key={i} onClick={() => setSelectedImg(i)}
+                        className={`rounded-full transition-all duration-200 ${i === selectedImg ? 'w-5 h-2 bg-rossa-blue' : 'w-2 h-2 bg-white/60 hover:bg-white'}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Contador */}
+              {images.length > 1 && (
+                <div className="absolute top-3 right-3 bg-black/40 text-white text-xs font-display px-2 py-1 rounded-full" style={{fontWeight:700}}>
+                  {selectedImg + 1} / {images.length}
+                </div>
+              )}
             </div>
+
+            {/* Thumbnails */}
             {images.length > 1 && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
                 {images.map((img, i) => (
                   <button key={i} onClick={() => setSelectedImg(i)}
-                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${selectedImg === i ? 'border-rossa-blue' : 'border-rossa-gray hover:border-gray-400'}`}>
+                    className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200
+                      ${i === selectedImg ? 'border-rossa-blue shadow-md scale-105' : 'border-rossa-gray hover:border-gray-400'}`}>
                     {img.url
                       ? <img src={img.url} alt="" className="w-full h-full object-cover" />
-                      : <span className="flex items-center justify-center h-full text-gray-300">🔧</span>}
+                      : <span className="flex items-center justify-center h-full text-gray-300">🔧</span>
+                    }
                   </button>
                 ))}
               </div>
@@ -91,16 +136,12 @@ export default function ProductDetail() {
               {product.name}
             </h1>
 
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-4 mb-6">
               {product.brand && (
-                <span className="text-gray-500 text-sm">
-                  Marca: <span className="text-gray-700 font-medium">{product.brand}</span>
-                </span>
+                <span className="text-gray-500 text-sm">Marca: <span className="text-gray-700 font-medium">{product.brand}</span></span>
               )}
               {product.partNumber && (
-                <span className="text-gray-500 text-sm">
-                  Nº parte: <span className="text-gray-700 font-medium">{product.partNumber}</span>
-                </span>
+                <span className="text-gray-500 text-sm">Nº parte: <span className="text-gray-700 font-medium">{product.partNumber}</span></span>
               )}
             </div>
 
@@ -121,25 +162,18 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Qty + Agregar */}
             {product.stock > 0 && (
               <div className="space-y-3 mb-8">
                 <div className="flex items-center gap-3">
                   <button onClick={() => setQty(q => Math.max(1, q - 1))}
-                    className="w-11 h-11 rounded-full border-2 border-rossa-gray hover:border-rossa-blue text-gray-600 hover:text-rossa-blue transition-colors flex items-center justify-center text-xl font-bold">
-                    −
-                  </button>
+                    className="w-11 h-11 rounded-full border-2 border-rossa-gray hover:border-rossa-blue text-gray-600 hover:text-rossa-blue transition-colors flex items-center justify-center text-xl font-bold">−</button>
                   <span className="font-display font-black text-rossa-blue text-xl w-8 text-center" style={{fontWeight:900}}>{qty}</span>
                   <button onClick={() => setQty(q => Math.min(product.stock, q + 1))}
-                    className="w-11 h-11 rounded-full border-2 border-rossa-gray hover:border-rossa-blue text-gray-600 hover:text-rossa-blue transition-colors flex items-center justify-center text-xl font-bold">
-                    +
-                  </button>
+                    className="w-11 h-11 rounded-full border-2 border-rossa-gray hover:border-rossa-blue text-gray-600 hover:text-rossa-blue transition-colors flex items-center justify-center text-xl font-bold">+</button>
                 </div>
 
                 <button onClick={handleAdd}
-                  className={`w-full py-4 rounded-2xl font-display uppercase tracking-wider transition-all duration-200 active:scale-95 ${
-                    added ? 'bg-green-500 text-white' : 'bg-rossa-blue text-white hover:bg-blue-800'
-                  }`}
+                  className={`w-full py-4 rounded-2xl font-display uppercase tracking-wider transition-all duration-200 active:scale-95 ${added ? 'bg-green-500 text-white' : 'bg-rossa-blue text-white hover:bg-blue-800'}`}
                   style={{fontWeight:700}}>
                   {added ? '✓ Agregado al carrito' : '+ Agregar al carrito'}
                 </button>
@@ -158,7 +192,6 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Descripción */}
             {product.description && (
               <div className="mb-6">
                 <h3 className="font-display uppercase text-rossa-red text-xs tracking-wider mb-3" style={{fontWeight:700}}>Descripción</h3>
@@ -166,7 +199,6 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Modelos compatibles */}
             {product.compatible?.length > 0 && (
               <div>
                 <h3 className="font-display uppercase text-rossa-red text-xs tracking-wider mb-3" style={{fontWeight:700}}>
